@@ -130,10 +130,8 @@ class Mapbox extends AbstractHttpProvider
      */
     private function executeQuery($query)
     {
-        $query   = $this->buildQuery($query);
-        echo $query .'<br/>';
-        // exit;
-        $response = $this->getAdapter()->get($query);
+        $query      = $this->buildQuery($query);
+        $response   = $this->getAdapter()->get($query);
 
         if ($response->getStatusCode() == 401) {
             throw new InvalidCredentials(sprintf('Access token is invalid %s', $query));
