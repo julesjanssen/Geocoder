@@ -18,7 +18,7 @@ use Geocoder\Exception\UnsupportedOperation;
 use Ivory\HttpAdapter\HttpAdapterInterface;
 
 /**
- * @author William Durand <william.durand1@gmail.com>
+ * @author Jules Janssen <jules.janssen@gmail.com>
  */
 class Mapbox extends AbstractHttpProvider
 {
@@ -38,6 +38,11 @@ class Mapbox extends AbstractHttpProvider
     private $country;
 
     /**
+     * @var string
+     */
+    private $proximity;
+
+    /**
      * @var bool
      */
     private $useSsl;
@@ -49,19 +54,19 @@ class Mapbox extends AbstractHttpProvider
 
     /**
      * @param HttpAdapterInterface $adapter An HTTP adapter
-     * @param string               $country  A locale (optional)
-     * @param string               $region  Region biasing (optional)
+     * @param string               $apiKey  Mapbox API key
+     * @param string               $country  A country (optional)
+     * @param string               $proximity  Proximity biasing (optional)
      * @param bool                 $useSsl  Whether to use an SSL connection (optional)
-     * @param string               $apiKey  Google Geocoding API key (optional)
      */
-    public function __construct(HttpAdapterInterface $adapter, $country = null, $proximity = null, $useSsl = false, $apiKey = null)
+    public function __construct(HttpAdapterInterface $adapter, $apiKey, $country = null, $proximity = null, $useSsl = false)
     {
         parent::__construct($adapter);
 
-        $this->country = $country;
-        $this->proximity = $proximity;
-        $this->useSsl = $useSsl;
-        $this->apiKey = $apiKey;
+        $this->country      = $country;
+        $this->proximity    = $proximity;
+        $this->useSsl       = $useSsl;
+        $this->apiKey       = $apiKey;
     }
 
     /**
@@ -69,7 +74,6 @@ class Mapbox extends AbstractHttpProvider
      */
     public function geocode($address)
     {
-        // Google API returns invalid data if IP address given
         // This API doesn't handle IPs
         if (filter_var($address, FILTER_VALIDATE_IP)) {
             throw new UnsupportedOperation('The Mapbox provider does not support IP addresses, only street addresses.');
@@ -116,6 +120,10 @@ class Mapbox extends AbstractHttpProvider
         $params = [];
         if (null !== $this->country) {
             $params['country'] = $this->country;
+        }
+
+        if (null !== $this->proximity) {
+            $params['proximity'] = $this->proximity;
         }
 
         if (null !== $this->apiKey) {
@@ -188,10 +196,10 @@ class Mapbox extends AbstractHttpProvider
     }
 
     /**
-     * Update current resultSet with given key/value.
+     * Update current resultSet address components
      *
      * @param array  $resultSet resultSet to update
-     * @param object $values    The component values
+     * @param object $feature   The 'context' feature
      *
      * @return array
      */
