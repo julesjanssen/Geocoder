@@ -176,8 +176,8 @@ class Mapbox extends AbstractHttpProvider
 
             // update coordinates
             $coordinates = $feature->geometry->coordinates;
-            $resultSet['latitude']  = $coordinates[0];
-            $resultSet['longitude'] = $coordinates[1];
+            $resultSet['latitude']  = $coordinates[1];
+            $resultSet['longitude'] = $coordinates[0];
 
             $resultSet['bounds'] = null;
             if (isset($feature->bbox)) {
